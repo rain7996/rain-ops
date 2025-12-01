@@ -1,0 +1,19 @@
+# python
+__pycache__
+
+# lib
+*.so
+
+# build 
+build/
+*.out
+
+# vscode
+.vscode
+
+# cmake
+CMakeFiles/
+CMakeCache.txt 
+*.cmake
+
+
