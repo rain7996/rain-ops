@@ -20,7 +20,8 @@ bool check_correctness()
     __half *B = new __half[k * n];
     __half *C = new __half[m * n];
 
-    init_mat(A, B, C, m, n, k, 0, 1);
+    INIT_METHOD im = SEQ;
+    init_mat(A, B, C, m, n, k, im, 1);
     print_mat(A, m, k, "A");
     print_mat(B, k, n, "B");
 

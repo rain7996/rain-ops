@@ -40,29 +40,36 @@ __half gen_rand_half()
     return __float2half(num);
 }
 
-void init_single_mat(__half *A, int row, int col, bool rand, __half value = 0)
+void init_single_mat(__half *A, int row, int col, INIT_METHOD init_method, __half value = 0)
 {
+    __half a = 0;
     for (int i = 0; i < row; i++)
     {
         for (int j = 0; j < col; j++)
         {
-            if (not rand)
+            switch (init_method)
             {
-                A[i * col + j] = value;
-            }
-            else
-            {
+            case RAND:
                 A[i * col + j] = gen_rand_half();
+                break;
+            case SEQ:
+                A[i * col + j] = a;
+                break;
+            case FIX:
+                A[i * col + j] = value;
+            default:
+                cerr << "invalid init method" << endl;
             }
+            a += 1;
         }
     }
 }
 
-void init_mat(__half *A, __half *B, __half *C, int m, int n, int k, bool rand, __half value = 0)
+void init_mat(__half *A, __half *B, __half *C, int m, int n, int k, INIT_METHOD init_method, __half value = 0)
 {
-    init_single_mat(A, m, k, rand, value);
-    init_single_mat(B, k, n, rand, value);
-    init_single_mat(C, m, n, false, 0);
+    init_single_mat(A, m, k, init_method, value);
+    init_single_mat(B, k, n, init_method, value);
+    init_single_mat(C, m, n, FIX, 0);
 }
 
 void print_mat(__half *M, int row, int col, string desc)
