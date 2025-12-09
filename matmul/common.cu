@@ -40,7 +40,7 @@ __half gen_rand_half()
     return __float2half(num);
 }
 
-void init_single_mat(__half *A, int row, int col, INIT_METHOD init_method, __half value = 0)
+void init_single_mat(__half *A, int row, int col, INIT_METHOD init_method, __half value)
 {
     __half a = 0;
     for (int i = 0; i < row; i++)
@@ -57,15 +57,17 @@ void init_single_mat(__half *A, int row, int col, INIT_METHOD init_method, __hal
                 break;
             case FIX:
                 A[i * col + j] = value;
+                break;
             default:
                 cerr << "invalid init method" << endl;
+                exit(-1);
             }
             a += 1;
         }
     }
 }
 
-void init_mat(__half *A, __half *B, __half *C, int m, int n, int k, INIT_METHOD init_method, __half value = 0)
+void init_mat(__half *A, __half *B, __half *C, int m, int n, int k, INIT_METHOD init_method, __half value)
 {
     init_single_mat(A, m, k, init_method, value);
     init_single_mat(B, k, n, init_method, value);

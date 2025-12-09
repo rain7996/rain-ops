@@ -201,6 +201,30 @@ matmul/main.cu.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.out.dir/build.make CMakeFiles/matmul.out.dir/matmul/main.cu.s
 .PHONY : matmul/main.cu.s
 
+matmul/mm.o: matmul/mm.cu.o
+.PHONY : matmul/mm.o
+
+# target to build an object file
+matmul/mm.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.out.dir/build.make CMakeFiles/matmul.out.dir/matmul/mm.cu.o
+.PHONY : matmul/mm.cu.o
+
+matmul/mm.i: matmul/mm.cu.i
+.PHONY : matmul/mm.i
+
+# target to preprocess a source file
+matmul/mm.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.out.dir/build.make CMakeFiles/matmul.out.dir/matmul/mm.cu.i
+.PHONY : matmul/mm.cu.i
+
+matmul/mm.s: matmul/mm.cu.s
+.PHONY : matmul/mm.s
+
+# target to generate assembly for a file
+matmul/mm.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.out.dir/build.make CMakeFiles/matmul.out.dir/matmul/mm.cu.s
+.PHONY : matmul/mm.cu.s
+
 matmul/timer.o: matmul/timer.cu.o
 .PHONY : matmul/timer.o
 
@@ -243,6 +267,9 @@ help:
 	@echo "... matmul/main.o"
 	@echo "... matmul/main.i"
 	@echo "... matmul/main.s"
+	@echo "... matmul/mm.o"
+	@echo "... matmul/mm.i"
+	@echo "... matmul/mm.s"
 	@echo "... matmul/timer.o"
 	@echo "... matmul/timer.i"
 	@echo "... matmul/timer.s"

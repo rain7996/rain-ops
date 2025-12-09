@@ -1,15 +1,12 @@
 #include <iostream>
 #include <cublas_v2.h>
+#include <cuda_fp16.h>
 
 #include "common.h"
 using namespace std;
 
-void cublas_matmul(const __half *d_A, const __half *d_B, __half *d_C, int m, int n, int k)
+void cublas_matmul(const __half *d_A, const __half *d_B, __half *d_C, int m, int n, int k, cublasHandle_t handle)
 {
-    cublasHandle_t handle;
-    CUBLASCHECK(cublasCreate(&handle));
-    CUBLASCHECK(cublasSetMathMode(handle, CUBLAS_TENSOR_OP_MATH));
-
     cublasOperation_t transa = CUBLAS_OP_N;
     cublasOperation_t transb = CUBLAS_OP_N;
 
@@ -28,7 +25,7 @@ void cublas_matmul(const __half *d_A, const __half *d_B, __half *d_C, int m, int
         d_B, Btype, n,
         d_A, Atype, k,
         &beta,
-        d_C, Ctype, m));
+        d_C, Ctype, n));
 
     return;
 }

@@ -8,9 +8,6 @@ __pycache__
 build/
 *.out
 
-# vscode
-.vscode
-
 # cmake
 CMakeFiles/
 CMakeCache.txt 

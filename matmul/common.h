@@ -1,7 +1,10 @@
+#pragma once
+
 #include <iostream>
 #include <vector>
 #include <random>
 #include <string>
+#include <cuda_fp16.h>
 
 using namespace std;
 
@@ -36,6 +39,12 @@ typedef enum
     FIX = 2
 } INIT_METHOD;
 
+typedef enum
+{
+    CUBLAS = 0,
+    MM_V0 = 1,
+} MM_ALG;
+
 void init_device();
 
 const vector<vector<int>> &get_shapes();
@@ -46,6 +55,6 @@ __half gen_rand_half();
 
 void init_single_mat(__half *A, int row, int col, INIT_METHOD init_method, __half value);
 
-void init_mat(__half *A, __half *B, __half *C, int m, int n, int k, INIT_METHOD init_method, __half value);
+void init_mat(__half *A, __half *B, __half *C, int m, int n, int k, INIT_METHOD init_method, __half value = 0);
 
 void print_mat(__half *M, int row, int col, string desc);

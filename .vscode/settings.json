@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "*.cu": "cuda-cpp",
+        "*.cuh": "cuda-cpp",
+        "*.py": "python",
+        "*.cpp": "cpp",
+        "*.h": "cuda-cpp",
+        "*.c": "c",
+        "*.cc": "c",
+    },
+}
