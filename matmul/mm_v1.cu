@@ -55,12 +55,11 @@ __global__ void matmul_kernel_v1(const __half *A, const __half *B, __half *C, si
 void matmul_v1(const __half *A, const __half *B, __half *C, int m, int n, int k, cublasHandle_t handle)
 {
     assert(handle == nullptr);
-    dim3 block(16U, 16U);
+    dim3 block(MM_V1_BLOCK_SIZE, MM_V1_BLOCK_SIZE);
     dim3 grid(
         (static_cast<unsigned int>(n) + block.x - 1U) / block.x,
         (static_cast<unsigned int>(m) + block.y - 1U) / block.y,
         1U);
-
     const __half alpha = __float2half(1.0f);
     const __half beta = __float2half(0.0f);
 

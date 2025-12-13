@@ -9,4 +9,6 @@ void cublas_matmul(const __half *A, const __half *B, __half *C, int m, int n, in
 
 void matmul_v0(const __half *A, const __half *B, __half *C, int m, int n, int k, cublasHandle_t handle);
 
+#define MM_V1_BLOCK_SIZE 16U
+
 void matmul_v1(const __half *A, const __half *B, __half *C, int m, int n, int k, cublasHandle_t handle);

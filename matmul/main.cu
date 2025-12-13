@@ -38,20 +38,34 @@ void benchmark()
         MatManager mm(shape[0], shape[1], shape[2], loop);
         mm_cub_results.push_back(mm.benchmark_single_shape(cublas_matmul, true));
         mm_v0_results.push_back(mm.benchmark_single_shape(matmul_v0, false));
+
+        unsigned int v1_buffer_size = MM_V1_BLOCK_SIZE * shape[2] * sizeof(__half) * 2;
+        if (v1_buffer_size >= TOTAL_SHARED_MEM_SiZE)
+        {
+            cerr << "[mm_v1]failed to allocate shared memory, need " << v1_buffer_size << " KB, but " << TOTAL_SHARED_MEM_SiZE << " KB in total" << endl;
+            mm_v1_results.push_back(result{
+                shape[0],
+                shape[1],
+                shape[2],
+                0,
+                0,
+            });
+            continue;
+        }
         mm_v1_results.push_back(mm.benchmark_single_shape(matmul_v1, false));
     }
+
+    cout << "m\t" << "n\t" << "k\t"
+         << "cub_t(ms)\t" << "cub_tflops\t"
+         << "mm_v0_t(ms)\t" << "mm_v0_tflops\t"
+         << "mm_v1_t(ms)\t" << "mm_v1_tflops\t"
+         << endl;
 
     for (int i = 0; i < n; i++)
     {
         result &cub_r = mm_cub_results[i];
         result &mm_v0_r = mm_v0_results[i];
         result &mm_v1_r = mm_v1_results[i];
-
-        cout << "m\t" << "n\t" << "k\t"
-             << "cub_t(ms)\t" << "cub_tflops\t"
-             << "mm_v0_t(ms)\t" << "mm_v0_tflops\t"
-             << "mm_v1_t(ms)\t" << "mm_v1_tflops\t"
-             << endl;
 
         cout << cub_r.m << '\t' << cub_r.n << '\t' << cub_r.k << '\t'
              << cub_r.t * 1000 << "\t\t" << cub_r.tflops << "\t\t"

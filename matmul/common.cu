@@ -11,7 +11,9 @@ using namespace std;
 namespace
 {
     const vector<vector<int>> dimensions = {
-        vector<int>{1024, 2048, 1024},
+        vector<int>{1024, 1024, 1024},
+        vector<int>{1024, 1024, 2048},
+        vector<int>{1024, 2048, 4096},
     };
 }
 

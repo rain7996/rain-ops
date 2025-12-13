@@ -40,6 +40,7 @@ using namespace std;
 
 #define ABS(X, Y) ((((X) - (Y)) > 0) ? ((X) - (Y)) : ((Y) - (X)))
 
+#define TOTAL_SHARED_MEM_SiZE (228 * 1024)
 typedef enum
 {
     RAND = 0,
