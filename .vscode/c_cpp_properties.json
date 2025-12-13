@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Linux-CUDA",
+            "name": "cuda-cpp",
             "compilerPath": "/usr/local/cuda/bin/nvcc",
             "intelliSenseMode": "linux-gcc-x64",
             "cppStandard": "c++17",

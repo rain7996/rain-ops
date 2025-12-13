@@ -3,6 +3,7 @@
 #include <cuda_fp16.h>
 
 #include "common.h"
+#include "mm.h"
 using namespace std;
 
 void cublas_matmul(const __half *d_A, const __half *d_B, __half *d_C, int m, int n, int k, cublasHandle_t handle)

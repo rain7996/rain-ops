@@ -5,182 +5,70 @@
 #include <assert.h>
 
 #include "timer.h"
-#include "baseline.h"
 #include "common.h"
 #include "mm.h"
+#include "manager.h"
 
 using namespace std;
 
-bool check_correctness()
+void check()
 {
-
-    CUDACHECK(cudaDeviceSynchronize());
-    int *shape = new int[3];
+    int shape[3];
     get_single_shape(shape);
 
-    int m = shape[0], n = shape[1], k = shape[2];
+    MatManager mm(shape[0], shape[1], shape[2], 1);
 
-    __half *A = new __half[m * k];
-    __half *B = new __half[k * n];
-    __half *C = new __half[m * n];
-
-    INIT_METHOD im = SEQ;
-    init_mat(A, B, C, m, n, k, im, 1);
-    print_mat(A, m, k, "A");
-    print_mat(B, k, n, "B");
-
-    __half *d_A, *d_B, *d_C;
-    CUDACHECK(cudaMalloc(reinterpret_cast<void **>(&d_A), static_cast<size_t>(m * k) * sizeof(__half)));
-    CUDACHECK(cudaMalloc(reinterpret_cast<void **>(&d_B), static_cast<size_t>(n * k) * sizeof(__half)));
-    CUDACHECK(cudaMalloc(reinterpret_cast<void **>(&d_C), static_cast<size_t>(m * n) * sizeof(__half)));
-
-    CUDACHECK(cudaMemcpy(d_A, A, m * k * sizeof(__half), cudaMemcpyHostToDevice));
-    CUDACHECK(cudaMemcpy(d_B, B, n * k * sizeof(__half), cudaMemcpyHostToDevice));
-
-    cublasHandle_t handle;
-    CUBLASCHECK(cublasCreate(&handle));
-    CUBLASCHECK(cublasSetMathMode(handle, CUBLAS_TENSOR_OP_MATH));
-    cublas_matmul(d_A, d_B, d_C, m, n, k, handle);
-    CUDACHECK(cudaMemcpy(C, d_C, static_cast<size_t>(m * n) * sizeof(__half), cudaMemcpyDeviceToHost));
-    print_mat(C, m, n, "cublas_matmul");
-
-    matmul(d_A, d_B, d_C, m, n, k);
-    CUDACHECK(cudaMemcpy(C, d_C, static_cast<size_t>(m * n) * sizeof(__half), cudaMemcpyDeviceToHost));
-    print_mat(C, m, n, "mm_v0");
-
-    CUBLASCHECK(cublasDestroy(handle));
-    delete[] A;
-    delete[] B;
-    delete[] C;
-    delete[] shape;
-
-    CUDACHECK(cudaFree(reinterpret_cast<void *>(d_A)));
-    CUDACHECK(cudaFree(reinterpret_cast<void *>(d_B)));
-    CUDACHECK(cudaFree(reinterpret_cast<void *>(d_C)));
-
-    CUDACHECK(cudaDeviceSynchronize());
-
-    return true;
+    mm.check_correctness(matmul_v0, true, "mm_v0");
+    mm.check_correctness(matmul_v1, true, "mm_v1");
 }
 
-typedef struct
+void benchmark()
 {
-    int m;
-    int n;
-    int k;
-    double t;
-    double gflops;
-} result;
+    vector<vector<int>> shapes = get_shapes();
 
-vector<result> benchmark(MM_ALG alg, int loop, string desc)
-{
-    const vector<vector<int>> shapes = get_shapes();
-    int n_shapes = shapes.size();
-    vector<result> ret{};
+    int n = shapes.size();
+    vector<result> mm_cub_results;
+    vector<result> mm_v0_results;
+    vector<result> mm_v1_results;
 
-    cublasHandle_t handle;
-    if (alg == CUBLAS)
+    int loop = 100;
+
+    for (auto shape : shapes)
     {
-        CUBLASCHECK(cublasCreate(&handle));
-        CUBLASCHECK(cublasSetMathMode(handle, CUBLAS_TENSOR_OP_MATH));
+        MatManager mm(shape[0], shape[1], shape[2], loop);
+        mm_cub_results.push_back(mm.benchmark_single_shape(cublas_matmul, true));
+        mm_v0_results.push_back(mm.benchmark_single_shape(matmul_v0, false));
+        mm_v1_results.push_back(mm.benchmark_single_shape(matmul_v1, false));
     }
 
-    for (int i = 0; i < n_shapes; i++)
+    for (int i = 0; i < n; i++)
     {
-        const vector<int> &shape = shapes[i];
-        int m = shape[0], n = shape[1], k = shape[2];
+        result &cub_r = mm_cub_results[i];
+        result &mm_v0_r = mm_v0_results[i];
+        result &mm_v1_r = mm_v1_results[i];
 
-        __half *A = new __half[m * k];
-        __half *B = new __half[k * n];
-        __half *C = new __half[m * n];
+        cout << "m\t" << "n\t" << "k\t"
+             << "cub_t(ms)\t" << "cub_tflops\t"
+             << "mm_v0_t(ms)\t" << "mm_v0_tflops\t"
+             << "mm_v1_t(ms)\t" << "mm_v1_tflops\t"
+             << endl;
 
-        INIT_METHOD im = RAND;
-        init_mat(A, B, C, m, n, k, im);
-
-        __half *d_A, *d_B, *d_C;
-        CUDACHECK(cudaMalloc(reinterpret_cast<void **>(&d_A), static_cast<size_t>(m * k) * sizeof(__half)));
-        CUDACHECK(cudaMalloc(reinterpret_cast<void **>(&d_B), static_cast<size_t>(n * k) * sizeof(__half)));
-        CUDACHECK(cudaMalloc(reinterpret_cast<void **>(&d_C), static_cast<size_t>(m * n) * sizeof(__half)));
-
-        CUDACHECK(cudaMemcpy(d_A, A, m * k * sizeof(__half), cudaMemcpyHostToDevice));
-        CUDACHECK(cudaMemcpy(d_B, B, n * k * sizeof(__half), cudaMemcpyHostToDevice));
-
-        timer tim;
-        CUDACHECK(cudaDeviceSynchronize());
-        tim.reset();
-        for (int i = 0; i < loop; i++)
-        {
-            switch (alg)
-            {
-            case CUBLAS:
-                cublas_matmul(d_A, d_B, d_C, m, n, k, handle);
-                break;
-            case MM_V0:
-                matmul(d_A, d_B, d_C, m, n, k);
-                break;
-            default:
-                cerr << "invalid matmul algorithm" << endl;
-                exit(-1);
-            }
-        }
-        CUDACHECK(cudaDeviceSynchronize());
-        double t = tim.reset();
-
-        double gflops = (double(2.0) * m * n * k) * loop / t / 1e12;
-        result single_ret{
-            m,
-            n,
-            k,
-            t,
-            gflops,
-        };
-
-        ret.push_back(single_ret);
-
-        delete[] A;
-        delete[] B;
-        delete[] C;
-
-        CUDACHECK(cudaFree(reinterpret_cast<void *>(d_A)));
-        CUDACHECK(cudaFree(reinterpret_cast<void *>(d_B)));
-        CUDACHECK(cudaFree(reinterpret_cast<void *>(d_C)));
+        cout << cub_r.m << '\t' << cub_r.n << '\t' << cub_r.k << '\t'
+             << cub_r.t * 1000 << "\t\t" << cub_r.tflops << "\t\t"
+             << mm_v0_r.t * 1000 << "\t\t" << mm_v0_r.tflops << "\t\t"
+             << mm_v1_r.t * 1000 << "\t\t" << mm_v1_r.tflops << "\t\t"
+             << endl;
     }
-
-    if (alg == CUBLAS)
-    {
-        CUBLASCHECK(cublasDestroy(handle));
-    }
-    return ret;
 }
 
 int main(int argc, char *argv[])
 {
     init_device();
     cout << fixed << setprecision(2);
-    timer tim;
-    const vector<vector<int>> shapes = get_shapes();
-    check_correctness();
 
-    cout << "start warming up" << endl;
-    benchmark(CUBLAS, 20, "warm_up");
-    cout << "finish warming up" << endl;
-    int loop = 20;
-    vector<result> cub_results = benchmark(CUBLAS, loop, "cublas_matmul");
-    vector<result> mm_v0_results = benchmark(MM_V0, loop, "mm_v0");
-    int n_results = shapes.size();
-    assert(n_results == cub_results.size());
-    assert(n_results == mm_v0_results.size());
+    check();
 
-    for (int i = 0; i < n_results; i++)
-    {
-        result &cub_r = cub_results[i];
-        result &mm_v0_r = mm_v0_results[i];
-
-        cout << "m\t" << "n\t" << "k\t" << "cub_t(ms)\t" << "cub_tflops\t" << "mm_t(ms)\t" << "mm_v0_gflops" << endl;
-        cout << cub_r.m << '\t' << cub_r.n << '\t' << cub_r.k << '\t'
-             << cub_r.t * 1000 << "\t\t" << cub_r.gflops << "\t\t"
-             << mm_v0_r.t * 1000 << "\t\t" << mm_v0_r.gflops << endl;
-    }
+    benchmark();
 
     return 0;
 }

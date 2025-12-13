@@ -2,12 +2,13 @@
 #include <cuda_fp16.h>
 #include <device_launch_parameters.h>
 #include <cub/cub.cuh>
+#include <cublas_v2.h>
+#include <assert.h>
 
 #include "mm.h"
+#include "common.h"
 
 using namespace std;
-
-#define MIN(X, Y) ((X) > (Y) ? (Y) : (X))
 
 __global__ void matmul_kernel_v0(const __half *A, const __half *B, __half *C, size_t m, size_t n, size_t k, __half alpha, __half beta)
 {
@@ -43,12 +44,14 @@ __global__ void matmul_kernel_v0(const __half *A, const __half *B, __half *C, si
     }
 }
 
-void matmul(const __half *A, const __half *B, __half *C, int m, int n, int k)
+void matmul_v0(const __half *A, const __half *B, __half *C, int m, int n, int k, cublasHandle_t handle)
 {
+    assert(handle == nullptr);
     const size_t n_blocks = static_cast<size_t>(m * n);
     const size_t n_threads = static_cast<size_t>(MIN(k, 1024));
     const __half alpha = __float2half(1.0f);
     const __half beta = __float2half(0.0f);
 
     matmul_kernel_v0<<<n_blocks, n_threads>>>(A, B, C, m, n, k, alpha, beta);
+    CUDACHECK(cudaGetLastError());
 }

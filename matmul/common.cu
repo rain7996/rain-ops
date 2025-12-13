@@ -27,15 +27,15 @@ const vector<vector<int>> &get_shapes()
 
 void get_single_shape(int *shape)
 {
-    shape[0] = 2; // m
-    shape[1] = 2; // n
-    shape[2] = 3; // k
+    shape[0] = 16; // m
+    shape[1] = 48; // n
+    shape[2] = 32; // k
 }
 
 __half gen_rand_half()
 {
     static mt19937 rng{random_device{}()};
-    static uniform_real_distribution<float> dist(0, 1);
+    static uniform_real_distribution<float> dist(-1, 1);
     float num = dist(rng);
     return __float2half(num);
 }
@@ -67,11 +67,10 @@ void init_single_mat(__half *A, int row, int col, INIT_METHOD init_method, __hal
     }
 }
 
-void init_mat(__half *A, __half *B, __half *C, int m, int n, int k, INIT_METHOD init_method, __half value)
+void init_mat(__half *A, __half *B, int m, int n, int k, INIT_METHOD init_method, __half value)
 {
     init_single_mat(A, m, k, init_method, value);
     init_single_mat(B, k, n, init_method, value);
-    init_single_mat(C, m, n, FIX, 0);
 }
 
 void print_mat(__half *M, int row, int col, string desc)
@@ -86,4 +85,24 @@ void print_mat(__half *M, int row, int col, string desc)
         }
         cout << endl;
     }
+}
+
+void mat_diff(__half *base, __half *target, int m, int n)
+{
+    float sum_diff;
+    float mean_diff;
+    float max_diff;
+
+    for (int i = 0; i < m * n; i++)
+    {
+        float t = ABS(__half2float(base[i]), __half2float(target[i]));
+        if (t > max_diff)
+        {
+            max_diff = t;
+        }
+        sum_diff += t;
+    }
+    mean_diff = sum_diff / (m * n);
+    cout << "max_diff: " << max_diff << endl;
+    cout << "mean_diff: " << mean_diff << endl;
 }

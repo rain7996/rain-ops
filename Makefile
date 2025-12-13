@@ -201,6 +201,30 @@ matmul/main.cu.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.out.dir/build.make CMakeFiles/matmul.out.dir/matmul/main.cu.s
 .PHONY : matmul/main.cu.s
 
+matmul/manager.o: matmul/manager.cu.o
+.PHONY : matmul/manager.o
+
+# target to build an object file
+matmul/manager.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.out.dir/build.make CMakeFiles/matmul.out.dir/matmul/manager.cu.o
+.PHONY : matmul/manager.cu.o
+
+matmul/manager.i: matmul/manager.cu.i
+.PHONY : matmul/manager.i
+
+# target to preprocess a source file
+matmul/manager.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.out.dir/build.make CMakeFiles/matmul.out.dir/matmul/manager.cu.i
+.PHONY : matmul/manager.cu.i
+
+matmul/manager.s: matmul/manager.cu.s
+.PHONY : matmul/manager.s
+
+# target to generate assembly for a file
+matmul/manager.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.out.dir/build.make CMakeFiles/matmul.out.dir/matmul/manager.cu.s
+.PHONY : matmul/manager.cu.s
+
 matmul/mm.o: matmul/mm.cu.o
 .PHONY : matmul/mm.o
 
@@ -224,6 +248,30 @@ matmul/mm.s: matmul/mm.cu.s
 matmul/mm.cu.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.out.dir/build.make CMakeFiles/matmul.out.dir/matmul/mm.cu.s
 .PHONY : matmul/mm.cu.s
+
+matmul/mm_v1.o: matmul/mm_v1.cu.o
+.PHONY : matmul/mm_v1.o
+
+# target to build an object file
+matmul/mm_v1.cu.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.out.dir/build.make CMakeFiles/matmul.out.dir/matmul/mm_v1.cu.o
+.PHONY : matmul/mm_v1.cu.o
+
+matmul/mm_v1.i: matmul/mm_v1.cu.i
+.PHONY : matmul/mm_v1.i
+
+# target to preprocess a source file
+matmul/mm_v1.cu.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.out.dir/build.make CMakeFiles/matmul.out.dir/matmul/mm_v1.cu.i
+.PHONY : matmul/mm_v1.cu.i
+
+matmul/mm_v1.s: matmul/mm_v1.cu.s
+.PHONY : matmul/mm_v1.s
+
+# target to generate assembly for a file
+matmul/mm_v1.cu.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/matmul.out.dir/build.make CMakeFiles/matmul.out.dir/matmul/mm_v1.cu.s
+.PHONY : matmul/mm_v1.cu.s
 
 matmul/timer.o: matmul/timer.cu.o
 .PHONY : matmul/timer.o
@@ -267,9 +315,15 @@ help:
 	@echo "... matmul/main.o"
 	@echo "... matmul/main.i"
 	@echo "... matmul/main.s"
+	@echo "... matmul/manager.o"
+	@echo "... matmul/manager.i"
+	@echo "... matmul/manager.s"
 	@echo "... matmul/mm.o"
 	@echo "... matmul/mm.i"
 	@echo "... matmul/mm.s"
+	@echo "... matmul/mm_v1.o"
+	@echo "... matmul/mm_v1.i"
+	@echo "... matmul/mm_v1.s"
 	@echo "... matmul/timer.o"
 	@echo "... matmul/timer.i"
 	@echo "... matmul/timer.s"

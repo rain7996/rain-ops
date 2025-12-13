@@ -8,4 +8,8 @@
         "*.c": "c",
         "*.cc": "c",
     },
+    "C_Cpp.default.includePath": [
+        "/usr/local/cuda/include",
+        "${workspaceFolder}/**"
+    ]
 }
