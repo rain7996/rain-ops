@@ -20,6 +20,7 @@ void check()
 
     mm.check_correctness(matmul_v0, true, "mm_v0");
     mm.check_correctness(matmul_v1, true, "mm_v1");
+    mm.check_correctness(matmul_v2, true, "mm_v2");
 }
 
 void benchmark()
@@ -30,6 +31,7 @@ void benchmark()
     vector<result> mm_cub_results;
     vector<result> mm_v0_results;
     vector<result> mm_v1_results;
+    vector<result> mm_v2_results;
 
     int loop = 100;
 
@@ -50,15 +52,20 @@ void benchmark()
                 0,
                 0,
             });
-            continue;
         }
-        mm_v1_results.push_back(mm.benchmark_single_shape(matmul_v1, false));
+        else
+        {
+            mm_v1_results.push_back(mm.benchmark_single_shape(matmul_v1, false));
+        }
+
+        mm_v2_results.push_back(mm.benchmark_single_shape(matmul_v2, false));
     }
 
     cout << "m\t" << "n\t" << "k\t"
          << "cub_t(ms)\t" << "cub_tflops\t"
          << "mm_v0_t(ms)\t" << "mm_v0_tflops\t"
          << "mm_v1_t(ms)\t" << "mm_v1_tflops\t"
+         << "mm_v2_t(ms)\t" << "mm_v2_tflops\t"
          << endl;
 
     for (int i = 0; i < n; i++)
@@ -66,11 +73,13 @@ void benchmark()
         result &cub_r = mm_cub_results[i];
         result &mm_v0_r = mm_v0_results[i];
         result &mm_v1_r = mm_v1_results[i];
+        result &mm_v2_r = mm_v2_results[i];
 
         cout << cub_r.m << '\t' << cub_r.n << '\t' << cub_r.k << '\t'
              << cub_r.t * 1000 << "\t\t" << cub_r.tflops << "\t\t"
              << mm_v0_r.t * 1000 << "\t\t" << mm_v0_r.tflops << "\t\t"
              << mm_v1_r.t * 1000 << "\t\t" << mm_v1_r.tflops << "\t\t"
+             << mm_v2_r.t * 1000 << "\t\t" << mm_v2_r.tflops << "\t\t"
              << endl;
     }
 }
