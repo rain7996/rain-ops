@@ -18,8 +18,8 @@ void check()
 
     MatManager mm(shape[0], shape[1], shape[2], 1);
 
-    mm.check_correctness(matmul_v0, true, "mm_v0");
-    mm.check_correctness(matmul_v1, true, "mm_v1");
+    mm.check_correctness(matmul_v0, false, "mm_v0");
+    mm.check_correctness(matmul_v1, false, "mm_v1");
     mm.check_correctness(matmul_v2, true, "mm_v2");
 }
 

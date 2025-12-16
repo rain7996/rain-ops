@@ -16,10 +16,11 @@ MatManager::MatManager(int m, int n, int k, int loop)
     this->k = k;
     this->loop = loop;
 
-    A = new __half[m * k];
-    B = new __half[k * n];
-    base_C = new __half[m * n];
-    mm_C = new __half[m * n];
+    // malloc pinned memory
+    CUDACHECK(cudaMallocHost(reinterpret_cast<void **>(&A), m * k * sizeof(__half)));
+    CUDACHECK(cudaMallocHost(reinterpret_cast<void **>(&B), k * n * sizeof(__half)));
+    CUDACHECK(cudaMallocHost(reinterpret_cast<void **>(&base_C), m * n * sizeof(__half)));
+    CUDACHECK(cudaMallocHost(reinterpret_cast<void **>(&mm_C), m * n * sizeof(__half)));
 
     INIT_METHOD im = RAND;
     init_mat(A, B, m, n, k, im, 1);
@@ -42,10 +43,10 @@ MatManager::MatManager(int m, int n, int k, int loop)
 MatManager::~MatManager()
 {
     CUBLASCHECK(cublasDestroy(handle));
-    delete[] A;
-    delete[] B;
-    delete[] base_C;
-    delete[] mm_C;
+    CUDACHECK(cudaFreeHost(A));
+    CUDACHECK(cudaFreeHost(B));
+    CUDACHECK(cudaFreeHost(base_C));
+    CUDACHECK(cudaFreeHost(mm_C));
 
     CUDACHECK(cudaFree(reinterpret_cast<void *>(d_A)));
     CUDACHECK(cudaFree(reinterpret_cast<void *>(d_B)));
