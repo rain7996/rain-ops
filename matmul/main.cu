@@ -18,9 +18,10 @@ void check()
 
     MatManager mm(shape[0], shape[1], shape[2], 1);
 
-    mm.check_correctness(matmul_v0, false, "mm_v0");
+    mm.check_correctness(matmul_v0, true, "mm_v0");
     mm.check_correctness(matmul_v1, false, "mm_v1");
-    mm.check_correctness(matmul_v2, true, "mm_v2");
+    mm.check_correctness(matmul_v2, false, "mm_v2");
+    mm.check_correctness(matmul_v3, true, "mm_v3");
 }
 
 void benchmark()
@@ -32,6 +33,7 @@ void benchmark()
     vector<result> mm_v0_results;
     vector<result> mm_v1_results;
     vector<result> mm_v2_results;
+    vector<result> mm_v3_results;
 
     int loop = 100;
 
@@ -59,6 +61,7 @@ void benchmark()
         }
 
         mm_v2_results.push_back(mm.benchmark_single_shape(matmul_v2, false));
+        mm_v3_results.push_back(mm.benchmark_single_shape(matmul_v3, false));
     }
 
     cout << "m\t" << "n\t" << "k\t"
@@ -66,6 +69,7 @@ void benchmark()
          << "mm_v0_t(ms)\t" << "mm_v0_tflops\t"
          << "mm_v1_t(ms)\t" << "mm_v1_tflops\t"
          << "mm_v2_t(ms)\t" << "mm_v2_tflops\t"
+         << "mm_v3_t(ms)\t" << "mm_v3_tflops\t"
          << endl;
 
     for (int i = 0; i < n; i++)
@@ -74,12 +78,14 @@ void benchmark()
         result &mm_v0_r = mm_v0_results[i];
         result &mm_v1_r = mm_v1_results[i];
         result &mm_v2_r = mm_v2_results[i];
+        result &mm_v3_r = mm_v3_results[i];
 
         cout << cub_r.m << '\t' << cub_r.n << '\t' << cub_r.k << '\t'
              << cub_r.t * 1000 << "\t\t" << cub_r.tflops << "\t\t"
              << mm_v0_r.t * 1000 << "\t\t" << mm_v0_r.tflops << "\t\t"
              << mm_v1_r.t * 1000 << "\t\t" << mm_v1_r.tflops << "\t\t"
              << mm_v2_r.t * 1000 << "\t\t" << mm_v2_r.tflops << "\t\t"
+             << mm_v3_r.t * 1000 << "\t\t" << mm_v3_r.tflops << "\t\t"
              << endl;
     }
 }

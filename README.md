@@ -1,6 +1,7 @@
 # Introduction
 cuda operator collections
 # Usage
+node: any file update requires call cmake to generate new makefile.
 ```bash
 cd rain-ops
 # cmake 
