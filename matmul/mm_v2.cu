@@ -15,46 +15,50 @@ using namespace std;
 #define BLOCK_TILE_SIZE_K 32U
 #define NUM_THREADS (BLOCK_TILE_SIZE_X * BLOCK_TILE_SIZE_Y)
 
-__device__ void load_data_to_shared_memory(const __half *A, const __half *B,
-                                           __half A_shared_tile[BLOCK_TILE_SIZE_Y][BLOCK_TILE_SIZE_K],
-                                           __half B_shared_tile[BLOCK_TILE_SIZE_K][BLOCK_TILE_SIZE_X],
-                                           size_t block_idx,
-                                           size_t thread_linear_idx,
-                                           size_t m, size_t n, size_t k)
+namespace
 {
+
+    __device__ void load_data_to_shared_memory(const __half *A, const __half *B,
+                                               __half A_shared_tile[BLOCK_TILE_SIZE_Y][BLOCK_TILE_SIZE_K],
+                                               __half B_shared_tile[BLOCK_TILE_SIZE_K][BLOCK_TILE_SIZE_X],
+                                               size_t block_idx,
+                                               size_t thread_linear_idx,
+                                               size_t m, size_t n, size_t k)
+    {
 // load A from DRAM to shared memory
 #pragma unroll
-    for (size_t load_idx{0U}; load_idx < (BLOCK_TILE_SIZE_Y * BLOCK_TILE_SIZE_K + NUM_THREADS - 1U) / NUM_THREADS; load_idx++)
-    {
-        const size_t SA_r{(thread_linear_idx + load_idx * NUM_THREADS) / BLOCK_TILE_SIZE_K};
-        const size_t SA_c{(thread_linear_idx + load_idx * NUM_THREADS) % BLOCK_TILE_SIZE_K};
-
-        const size_t A_r{blockIdx.y * BLOCK_TILE_SIZE_Y + SA_r};
-        const size_t A_c{block_idx * BLOCK_TILE_SIZE_K + SA_c};
-
-        __half val;
-        if (A_r < m && A_c < k)
+        for (size_t load_idx{0U}; load_idx < (BLOCK_TILE_SIZE_Y * BLOCK_TILE_SIZE_K + NUM_THREADS - 1U) / NUM_THREADS; load_idx++)
         {
-            val = A[A_r * k + A_c];
+            const size_t SA_r{(thread_linear_idx + load_idx * NUM_THREADS) / BLOCK_TILE_SIZE_K};
+            const size_t SA_c{(thread_linear_idx + load_idx * NUM_THREADS) % BLOCK_TILE_SIZE_K};
+
+            const size_t A_r{blockIdx.y * BLOCK_TILE_SIZE_Y + SA_r};
+            const size_t A_c{block_idx * BLOCK_TILE_SIZE_K + SA_c};
+
+            __half val;
+            if (A_r < m && A_c < k)
+            {
+                val = A[A_r * k + A_c];
+            }
+            A_shared_tile[SA_r][SA_c] = val;
         }
-        A_shared_tile[SA_r][SA_c] = val;
-    }
 
 #pragma unroll
-    for (size_t load_idx{0U}; load_idx < (BLOCK_TILE_SIZE_K * BLOCK_TILE_SIZE_X + NUM_THREADS - 1U) / NUM_THREADS; load_idx++)
-    {
-        const size_t SB_r{(thread_linear_idx + load_idx * NUM_THREADS) / BLOCK_TILE_SIZE_X};
-        const size_t SB_c{(thread_linear_idx + load_idx * NUM_THREADS) % BLOCK_TILE_SIZE_X};
-
-        const size_t B_r{(block_idx * BLOCK_TILE_SIZE_K + SB_r)};
-        const size_t B_c{(blockIdx.x * BLOCK_TILE_SIZE_X + SB_c)};
-
-        __half val;
-        if (B_r < k && B_c < n)
+        for (size_t load_idx{0U}; load_idx < (BLOCK_TILE_SIZE_K * BLOCK_TILE_SIZE_X + NUM_THREADS - 1U) / NUM_THREADS; load_idx++)
         {
-            val = B[B_r * n + B_c];
+            const size_t SB_r{(thread_linear_idx + load_idx * NUM_THREADS) / BLOCK_TILE_SIZE_X};
+            const size_t SB_c{(thread_linear_idx + load_idx * NUM_THREADS) % BLOCK_TILE_SIZE_X};
+
+            const size_t B_r{(block_idx * BLOCK_TILE_SIZE_K + SB_r)};
+            const size_t B_c{(blockIdx.x * BLOCK_TILE_SIZE_X + SB_c)};
+
+            __half val;
+            if (B_r < k && B_c < n)
+            {
+                val = B[B_r * n + B_c];
+            }
+            B_shared_tile[SB_r][SB_c] = val;
         }
-        B_shared_tile[SB_r][SB_c] = val;
     }
 }
 
