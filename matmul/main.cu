@@ -64,13 +64,21 @@ void benchmark()
         mm_v3_results.push_back(mm.benchmark_single_shape(matmul_v3, false));
     }
 
-    cout << "m\t" << "n\t" << "k\t"
-         << "cub_t(ms)\t" << "cub_tflops\t"
-         << "mm_v0_t(ms)\t" << "mm_v0_tflops\t"
-         << "mm_v1_t(ms)\t" << "mm_v1_tflops\t"
-         << "mm_v2_t(ms)\t" << "mm_v2_tflops\t"
-         << "mm_v3_t(ms)\t" << "mm_v3_tflops\t"
-         << endl;
+    std::cout << std::left
+              << std::setw(8) << "m"
+              << std::setw(8) << "n"
+              << std::setw(8) << "k"
+              << std::setw(10) << "cub_t(ms)"
+              << std::setw(12) << "cub_tflops"
+              << std::setw(12) << "mm_v0_t(ms)"
+              << std::setw(12) << "mm_v0_tflops"
+              << std::setw(12) << "mm_v1_t(ms)"
+              << std::setw(12) << "mm_v1_tflops"
+              << std::setw(12) << "mm_v2_t(ms)"
+              << std::setw(12) << "mm_v2_tflops"
+              << std::setw(12) << "mm_v3_t(ms)"
+              << std::setw(12) << "mm_v3_tflops"
+              << '\n';
 
     for (int i = 0; i < n; i++)
     {
@@ -80,13 +88,14 @@ void benchmark()
         result &mm_v2_r = mm_v2_results[i];
         result &mm_v3_r = mm_v3_results[i];
 
-        cout << cub_r.m << '\t' << cub_r.n << '\t' << cub_r.k << '\t'
-             << cub_r.t * 1000 << "\t\t" << cub_r.tflops << "\t\t"
-             << mm_v0_r.t * 1000 << "\t\t" << mm_v0_r.tflops << "\t\t"
-             << mm_v1_r.t * 1000 << "\t\t" << mm_v1_r.tflops << "\t\t"
-             << mm_v2_r.t * 1000 << "\t\t" << mm_v2_r.tflops << "\t\t"
-             << mm_v3_r.t * 1000 << "\t\t" << mm_v3_r.tflops << "\t\t"
-             << endl;
+        std::cout
+            << std::setw(8) << cub_r.m << std::setw(8) << cub_r.n << std::setw(8) << cub_r.k
+            << std::setw(10) << cub_r.t * 1000.0 << std::setw(12) << cub_r.tflops
+            << std::setw(12) << mm_v0_r.t * 1000.0 << std::setw(12) << mm_v0_r.tflops
+            << std::setw(12) << mm_v1_r.t * 1000.0 << std::setw(12) << mm_v1_r.tflops
+            << std::setw(12) << mm_v2_r.t * 1000.0 << std::setw(12) << mm_v2_r.tflops
+            << std::setw(12) << mm_v3_r.t * 1000.0 << std::setw(12) << mm_v3_r.tflops
+            << '\n';
     }
 }
 
