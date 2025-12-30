@@ -64,7 +64,7 @@ namespace
     }
 };
 
-// one therad takes account for [THREAD_TILE_SIZE_Y , 1] output elements
+// one therad takes account for [THREAD_TILE_SIZE_Y , THREAD_TILE_SIZE_X] output elements
 __global__ void matmul_kernel_v3(const __half *A, const __half *B, __half *C, size_t m, size_t n, size_t k, __half alpha, __half beta)
 {
     const size_t thread_linear_idx{threadIdx.y * blockDim.x + threadIdx.x};
@@ -86,7 +86,6 @@ __global__ void matmul_kernel_v3(const __half *A, const __half *B, __half *C, si
         load_data_to_shared_memory(A, B, S_A, S_B, b_idx, thread_linear_idx, m, n, k);
         __syncthreads();
 
-#pragma unroll
         for (size_t k_i = 0; k_i < BLOCK_TILE_SIZE_K; k_i++)
         {
 #pragma unroll
@@ -104,6 +103,7 @@ __global__ void matmul_kernel_v3(const __half *A, const __half *B, __half *C, si
 #pragma unroll
             for (size_t i = 0; i < THREAD_TILE_SIZE_Y; i++)
             {
+#pragma unroll
                 for (size_t j = 0; j < THREAD_TILE_SIZE_X; j++)
                 {
                     C_results[i][j] += R_A[i] * R_B[j];

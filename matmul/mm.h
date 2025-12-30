@@ -16,3 +16,5 @@ void matmul_v1(const __half *A, const __half *B, __half *C, int m, int n, int k,
 void matmul_v2(const __half *A, const __half *B, __half *C, int m, int n, int k, cublasHandle_t handle);
 
 void matmul_v3(const __half *A, const __half *B, __half *C, int m, int n, int k, cublasHandle_t handle);
+
+void matmul_v4(const __half *A, const __half *B, __half *C, int m, int n, int k, cublasHandle_t handle);
