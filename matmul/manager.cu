@@ -65,6 +65,8 @@ void MatManager::check_correctness(mm_func func, bool need_print, string desc)
         base_inited = true;
         if (need_print)
         {
+            print_mat(A, m, k, "A");
+            print_mat(B, k, n, "B");
             print_mat(base_C, m, n, "cublas");
         }
     }

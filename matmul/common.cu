@@ -37,7 +37,7 @@ void get_single_shape(int *shape)
 
 __half gen_rand_half()
 {
-    static mt19937 rng{random_device{}()};
+    static mt19937 rng{123};
     static uniform_real_distribution<float> dist(-1, 1);
     float num = dist(rng);
     return __float2half(num);

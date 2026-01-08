@@ -22,7 +22,8 @@ void check()
     mm.check_correctness(matmul_v1, false, "mm_v1");
     mm.check_correctness(matmul_v2, false, "mm_v2");
     mm.check_correctness(matmul_v3, false, "mm_v3");
-    mm.check_correctness(matmul_v4, true, "mm_v4");
+    mm.check_correctness(matmul_v4, false, "mm_v4");
+    mm.check_correctness(matmul_v5, true, "mm_v5");
 }
 
 void benchmark()
@@ -36,6 +37,7 @@ void benchmark()
     vector<result> mm_v2_results;
     vector<result> mm_v3_results;
     vector<result> mm_v4_results;
+    vector<result> mm_v5_results;
 
     int loop = 100;
 
@@ -65,6 +67,7 @@ void benchmark()
         mm_v2_results.push_back(mm.benchmark_single_shape(matmul_v2, false));
         mm_v3_results.push_back(mm.benchmark_single_shape(matmul_v3, false));
         mm_v4_results.push_back(mm.benchmark_single_shape(matmul_v4, false));
+        mm_v5_results.push_back(mm.benchmark_single_shape(matmul_v5, false));
     }
 
     std::cout << std::left
@@ -83,6 +86,8 @@ void benchmark()
               << std::setw(12) << "mm_v3_tflops"
               << std::setw(12) << "mm_v4_t(ms)"
               << std::setw(12) << "mm_v4_tflops"
+              << std::setw(12) << "mm_v5_t(ms)"
+              << std::setw(12) << "mm_v5_tflops"
               << '\n';
 
     for (int i = 0; i < n; i++)
@@ -93,6 +98,7 @@ void benchmark()
         result &mm_v2_r = mm_v2_results[i];
         result &mm_v3_r = mm_v3_results[i];
         result &mm_v4_r = mm_v4_results[i];
+        result &mm_v5_r = mm_v5_results[i];
 
         std::cout
             << std::setw(8) << cub_r.m << std::setw(8) << cub_r.n << std::setw(8) << cub_r.k
@@ -102,6 +108,7 @@ void benchmark()
             << std::setw(12) << mm_v2_r.t * 1000.0 << std::setw(12) << mm_v2_r.tflops
             << std::setw(12) << mm_v3_r.t * 1000.0 << std::setw(12) << mm_v3_r.tflops
             << std::setw(12) << mm_v4_r.t * 1000.0 << std::setw(12) << mm_v4_r.tflops
+            << std::setw(12) << mm_v5_r.t * 1000.0 << std::setw(12) << mm_v5_r.tflops
             << '\n';
     }
 }

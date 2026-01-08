@@ -15,7 +15,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # cuda
 set(CMAKE_CUDA_ARCHITECTURES 90)  # 例如: Turing(75), Ampere(80), Ada(86)
-set(NVCC_FLAGS -O3 -lineinfo --default-stream per-thread)
+set(NVCC_ARGS -O3 -lineinfo --default-stream;per-thread)
 
 # find packages
 find_package(CUDAToolkit REQUIRED)
@@ -42,7 +42,7 @@ CUDA::cublas
 
 # set compile options
 target_compile_options(${PROG}.out PRIVATE
-    $<$<COMPILE_LANGUAGE:CUDA>:${NVCC_FLAGS}>
+    $<$<COMPILE_LANGUAGE:CUDA>:${NVCC_ARGS}>
 )
 
 # set include directories

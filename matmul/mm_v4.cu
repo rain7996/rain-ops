@@ -43,31 +43,31 @@ namespace
             const size_t A_c = block_idx * BLOCK_TILE_SIZE_K + S_A_c;
 
             float4 A_row_vec_val = {0, 0, 0, 0};
+            __half *A_row_vals = reinterpret_cast<__half *>(&A_row_vec_val);
             if (A_r < m && A_c < k)
             {
                 A_row_vec_val = *reinterpret_cast<const float4 *>(&A[A_r * k + A_c]);
-            }
-
-            __half *A_vec_vals = reinterpret_cast<__half *>(&A_row_vec_val);
-            if (A_c + NUM_VECTOR_UNITS > k)
-            {
-                size_t num_invalid_ele = A_c + NUM_VECTOR_UNITS - k;
-                for (size_t t = 0; t < num_invalid_ele; t++)
+                if (A_c + NUM_VECTOR_UNITS > k)
                 {
-                    A_vec_vals[NUM_VECTOR_UNITS - t - 1] = 0;
+                    size_t num_invalid_ele = A_c + NUM_VECTOR_UNITS - k;
+                    for (size_t j = 0; j < num_invalid_ele; j++)
+                    {
+                        A_row_vals[NUM_VECTOR_UNITS - j - 1] = 0;
+                    }
                 }
             }
 
             if (S_A_r < BLOCK_TILE_SIZE_Y && S_A_c < BLOCK_TILE_SIZE_K)
             {
-                for (size_t i = 0; i < NUM_VECTOR_UNITS; i++)
+#pragma unroll
+                for (size_t j = 0; j < NUM_VECTOR_UNITS; j++)
                 {
-                    A_shared_tile_trans[S_A_c + i][S_A_r] = *(A_vec_vals + i);
+                    A_shared_tile_trans[S_A_c + j][S_A_r] = A_row_vals[j];
                 }
             }
         }
 
-#pragma unroll
+        // load B from DRAM to shared memory
         for (size_t i = 0; i < (BLOCK_TILE_SIZE_K * VECTORIZED_BLOCK_TILE_SIZE_X + NUM_THREADS - 1) / NUM_THREADS; i++)
         {
             const size_t S_B_r = (i * NUM_THREADS + thread_linear_idx) / VECTORIZED_BLOCK_TILE_SIZE_X;
@@ -77,31 +77,28 @@ namespace
             const size_t B_c = blockIdx.x * BLOCK_TILE_SIZE_X + S_B_c;
 
             float4 B_row_vec_val = {0, 0, 0, 0};
+            __half *B_row_vals = reinterpret_cast<__half *>(&B_row_vec_val);
+
             if (B_r < k && B_c < n)
             {
                 B_row_vec_val = *reinterpret_cast<const float4 *>(&B[B_r * n + B_c]);
-            }
-
-            __half *B_vec_vals = reinterpret_cast<__half *>(&B_row_vec_val);
-            if (B_c + NUM_VECTOR_UNITS > n)
-            {
-                size_t num_invalid_ele = B_c + NUM_VECTOR_UNITS - n;
-                for (size_t t = 0; t < num_invalid_ele; t++)
+                if (B_c + NUM_VECTOR_UNITS > n)
                 {
-                    B_vec_vals[NUM_VECTOR_UNITS - t - 1] = 0;
+                    size_t num_invalid_ele = B_c + NUM_VECTOR_UNITS - n;
+                    for (size_t j = 0; j < num_invalid_ele; j++)
+                    {
+                        B_row_vals[NUM_VECTOR_UNITS - j - 1] = 0;
+                    }
                 }
             }
 
             if (S_B_r < BLOCK_TILE_SIZE_K && S_B_c < BLOCK_TILE_SIZE_X)
             {
-                for (size_t i = 0; i < NUM_VECTOR_UNITS; i++)
-                {
-                    B_shared_tile[S_B_r][S_B_c + i] = *(B_vec_vals + i);
-                }
+                *reinterpret_cast<float4 *>(&B_shared_tile[S_B_r][S_B_c]) = B_row_vec_val;
             }
         }
-    }
-};
+    };
+}
 
 __global__ void matmul_kernel_v4(const __half *A, const __half *B, __half *C, size_t m, size_t n, size_t k, __half alpha, __half beta)
 {
