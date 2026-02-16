@@ -89,12 +89,22 @@ result MatManager::benchmark_single_shape(mm_func func, bool isCublas)
 {
     const vector<vector<int>> shapes = get_shapes();
     int n_shapes = shapes.size();
+    int warm_up = 3;
+    bool bench_begin = false;
 
-    timer tim;
+    cudaEvent_t start;
+    cudaEvent_t end;
+
+    CUDACHECK(cudaEventCreate(&start));
+    CUDACHECK(cudaEventCreate(&end));
     CUDACHECK(cudaDeviceSynchronize());
-    tim.reset();
-    for (int i = 0; i < loop; i++)
+    for (int i = 0; i < loop + warm_up; i++)
     {
+        if (!bench_begin && i >= warm_up)
+        {
+            bench_begin = true;
+            CUDACHECK(cudaEventRecord(start));
+        }
         if (!isCublas)
         {
             func(d_A, d_B, d_C, m, n, k, nullptr);
@@ -104,10 +114,12 @@ result MatManager::benchmark_single_shape(mm_func func, bool isCublas)
             cublas_matmul(d_A, d_B, d_C, m, n, k, handle);
         }
     }
-    CUDACHECK(cudaDeviceSynchronize());
-    double t = tim.reset();
+    CUDACHECK(cudaEventRecord(end));
+    CUDACHECK(cudaEventSynchronize(end));
+    float t;
+    CUDACHECK(cudaEventElapsedTime(&t, start, end)); // unit ms
 
-    double tflops = (double(2.0) * m * n * k) * loop / t / 1e12;
+    double tflops = (double(2.0) * m * n * k) * loop / (t / 1e3) / 1e12;
     result ret{
         m,
         n,

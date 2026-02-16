@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.py": "python",
         "*.cu": "cuda-cpp",
         "*.cuh": "cuda-cpp",
         "*.py": "python",

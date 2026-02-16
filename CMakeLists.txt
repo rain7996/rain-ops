@@ -4,7 +4,7 @@ project(CudaProject LANGUAGES CXX CUDA)
 
 # set environments
 set(PROG "matmul" CACHE STRING "My Cmake Workspace")
-set(CMAKE_OUT_DIR "build")
+option(DEBUG "Debug Mode" ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/lib)
@@ -15,7 +15,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # cuda
 set(CMAKE_CUDA_ARCHITECTURES 90)  # 例如: Turing(75), Ampere(80), Ada(86)
-set(NVCC_ARGS -O3 -lineinfo --default-stream;per-thread)
+if(NOT DEBUG)
+    set(NVCC_ARGS -O3 --default-stream;per-thread)
+else()
+    set(NVCC_ARGS -G -g -O0)
+endif()
+
+message(INFO "nvcc ${NVCC_ARGS} ")
 
 # find packages
 find_package(CUDAToolkit REQUIRED)

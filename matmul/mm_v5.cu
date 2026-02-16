@@ -190,7 +190,13 @@ __global__ void matmul_kernel_v5(const __half *A, const __half *B, __half *C, si
 
                     if (C_r < m && C_c < n)
                     {
-                        float4 C_vals = *reinterpret_cast<float4 *>(&C[C_r * n + C_c]);
+
+                        float4 C_vals = {0, 0, 0, 0};
+
+                        if (beta != __float2half(0))
+                        {
+                            C_vals = *reinterpret_cast<float4 *>(&C[C_r * n + C_c]);
+                        }
 
                         for (size_t i = 0; i < NUM_VECTOR_UNITS; i++)
                         {
