@@ -25,6 +25,7 @@ void check()
     mm.check_correctness(matmul_v4, false, "mm_v4");
     mm.check_correctness(matmul_v5, false, "mm_v5");
     mm.check_correctness(matmul_v6, true, "mm_v6");
+    mm.check_correctness(matmul_v7, true, "mm_v7");
 }
 
 void benchmark()
@@ -40,6 +41,7 @@ void benchmark()
     vector<result> mm_v4_results;
     vector<result> mm_v5_results;
     vector<result> mm_v6_results;
+    vector<result> mm_v7_results;
 
     int loop = 20;
 
@@ -71,6 +73,7 @@ void benchmark()
         mm_v4_results.push_back(mm.benchmark_single_shape(matmul_v4, false));
         mm_v5_results.push_back(mm.benchmark_single_shape(matmul_v5, false));
         mm_v6_results.push_back(mm.benchmark_single_shape(matmul_v6, false));
+        mm_v7_results.push_back(mm.benchmark_single_shape(matmul_v7, false));
     }
 
     std::cout << std::left
@@ -93,6 +96,8 @@ void benchmark()
               << std::setw(12) << "mm_v5_tflops"
               << std::setw(12) << "mm_v6_t(ms)"
               << std::setw(12) << "mm_v6_tflops"
+              << std::setw(12) << "mm_v7_t(ms)"
+              << std::setw(12) << "mm_v7_tflops"
               << '\n';
 
     for (int i = 0; i < n; i++)
@@ -105,6 +110,7 @@ void benchmark()
         result &mm_v4_r = mm_v4_results[i];
         result &mm_v5_r = mm_v5_results[i];
         result &mm_v6_r = mm_v6_results[i];
+        result &mm_v7_r = mm_v7_results[i];
 
         std::cout
             << std::setw(8) << cub_r.m << std::setw(8) << cub_r.n << std::setw(8) << cub_r.k
@@ -116,6 +122,7 @@ void benchmark()
             << std::setw(12) << mm_v4_r.t * 1000.0 << std::setw(12) << mm_v4_r.tflops
             << std::setw(12) << mm_v5_r.t * 1000.0 << std::setw(12) << mm_v5_r.tflops
             << std::setw(12) << mm_v6_r.t * 1000.0 << std::setw(12) << mm_v6_r.tflops
+            << std::setw(12) << mm_v7_r.t * 1000.0 << std::setw(12) << mm_v7_r.tflops
             << '\n';
     }
 }

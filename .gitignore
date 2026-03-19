@@ -16,4 +16,6 @@ CMakeCache.txt
 # log
 *.log
 
-
+# nsys
+*.sqlite
+*.nsys-rep
